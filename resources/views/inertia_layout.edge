@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="IAM Digital Covet — the identity authority for Digital Covet's internal apps."
+    />
+    <title data-inertia>
+      IAM Digital Covet
+    </title>
+
+    <script>
+      /* Apply the saved theme before first paint to avoid a light flash. */
+      try {
+        if (/(?:^|; )app_theme=dark/.test(document.cookie)) {
+          document.documentElement.classList.add('dark')
+        }
+      } catch (e) {}
+    </script>
+
+    @viteReactRefresh()
+    @vite(['inertia/app.tsx'])
+    @inertiaHead()
+    @stack('dumper')
+  </head>
+
+  <body>
+    @inertia()
+  </body>
+
+</html>

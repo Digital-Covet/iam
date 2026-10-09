@@ -1,0 +1,286 @@
+@import 'tailwindcss';
+
+/* Ledger: warm-paper neutrals around the cobalt primary. Contrast pairs verified
+   with contrast_check.py (body text >= 4.5:1, control edges >= 3:1). */
+:root {
+  color-scheme: light;
+  --background: #f2f1ec;
+  --surface: #fffefb;
+  --sidebar: #e6e3da;
+  --surface-raised: #ffffff;
+  --foreground: #1b1f2a;
+  --muted-foreground: #5a5f6b;
+  --primary: #1d4ed8;
+  --primary-foreground: #ffffff;
+  --secondary: #0d6b63;
+  --accent: #9a4a07;
+  /* Alert marks (edges, dots, chart markers): non-text, needs 3:1 only. */
+  --alert-fill: #b4530a;
+  --alert-wash: color-mix(in oklab, #b4530a 8%, var(--surface));
+  --primary-wash: color-mix(in oklab, var(--primary) 10%, transparent);
+  --border: #d9d6cc;
+  --border-strong: #7f7b6d;
+  --rule-ink: rgb(27 31 42 / 0.82);
+  --rule-ink-soft: rgb(27 31 42 / 0.28);
+  --hover: rgb(27 31 42 / 0.06);
+  --ring: #1d4ed8;
+  --success: #166534;
+  --warning: #9a4a07;
+  --error: #b91c1c;
+  --info: #1d4ed8;
+  --radius: 0.625rem;
+  --elev-card: 0 1px 0 rgb(27 31 42 / 0.04), 0 1px 3px rgb(27 31 42 / 0.06);
+  --elev-float: 0 1px 2px rgb(27 31 42 / 0.08), 0 12px 32px -12px rgb(27 31 42 / 0.22);
+  --sidebar-edge: rgb(27 31 42 / 0.07);
+  --elev-tab: 0 1px 0 rgb(27 31 42 / 0.05), 0 1px 3px rgb(27 31 42 / 0.08);
+  /* Auth doorway panel: ink-cobalt, same in both themes (dark is slightly deeper). */
+  --panel: #0f1e4a;
+  --panel-foreground: #ffffff;
+  --panel-muted: #c9d4f0;
+  --panel-accent: #8ab4ff;
+  --panel-line: #6f86c4;
+  --panel-grid: rgb(111 134 196 / 0.14);
+  --elev-form: 0 1px 2px rgb(27 31 42 / 0.06), 0 20px 48px -24px rgb(27 31 42 / 0.28);
+  --ring-glow: 0 0 0 4px color-mix(in oklab, var(--ring) 16%, transparent);
+  --duration-slow: 420ms;
+  --sidebar-width: 256px;
+  --sidebar-rail: 64px;
+  --container-max: 1440px;
+  --duration-fast: 140ms;
+  --duration-normal: 200ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #0d1117;
+  --surface: #151b23;
+  --sidebar: #10161f;
+  --surface-raised: #1c2430;
+  --foreground: #e5e7eb;
+  --muted-foreground: #9ca3af;
+  --primary: #8ab4ff;
+  --primary-foreground: #09111f;
+  --secondary: #5eead4;
+  --accent: #fcd34d;
+  --border: #293241;
+  --border-strong: #5b6678;
+  --rule-ink: rgb(229 231 235 / 0.7);
+  --rule-ink-soft: rgb(229 231 235 / 0.2);
+  --hover: rgb(255 255 255 / 0.05);
+  --ring: #8ab4ff;
+  --success: #86efac;
+  --warning: #fbbf5a;
+  --alert-fill: #fbbf5a;
+  --error: #fca5a5;
+  --info: #93c5fd;
+  --panel: #0a1433;
+  --elev-card: none;
+  --elev-float: 0 12px 32px -12px rgb(0 0 0 / 0.6);
+  --sidebar-edge: rgb(255 255 255 / 0.05);
+  --elev-tab: none;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-sidebar: var(--sidebar);
+  --color-surface-raised: var(--surface-raised);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-hover: var(--hover);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
+  --font-sans: 'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif;
+  /* Display serif: page titles and ledger figures only. */
+  --font-display: 'Newsreader Variable', ui-serif, Georgia, serif;
+  --color-alert-fill: var(--alert-fill);
+  --color-alert-wash: var(--alert-wash);
+  --color-primary-wash: var(--primary-wash);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* One-time codes only (2FA entry, backup codes). */
+  --font-code: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --color-panel: var(--panel);
+  --color-panel-foreground: var(--panel-foreground);
+  --color-panel-muted: var(--panel-muted);
+  --color-panel-accent: var(--panel-accent);
+  --color-panel-line: var(--panel-line);
+  /* Radius hierarchy: lg = controls (6px), xl = cards (10px), 2xl = dialogs (12px). */
+  --radius-lg: 0.375rem;
+  --radius-xl: var(--radius);
+  --radius-2xl: 0.75rem;
+  --radius-card: var(--radius);
+  --shadow-card: var(--elev-card);
+  --shadow-float: var(--elev-float);
+  --shadow-form: var(--elev-form);
+  --shadow-tab: var(--elev-tab);
+}
+
+/* Tear-off perforation: dotted vertical divider between summary cells.
+   Declared with @utility so variants (md:, xl:not-first:) work in Tailwind v4. */
+@utility perforated {
+  background-image: radial-gradient(circle, var(--border-strong) 0 1px, transparent 1.5px);
+  background-size: 1px 6px;
+  background-repeat: repeat-y;
+  background-position: left top;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  /* Ledger rule: full-width hairline with a short cobalt bar at the left, under page and dialog headers. */
+  .ledger-rule {
+    border-bottom: 2px solid transparent;
+    background-image:
+      linear-gradient(var(--primary), var(--primary)),
+      linear-gradient(var(--rule-ink-soft), var(--rule-ink-soft));
+    background-size:
+      3.5rem 2px,
+      100% 1px;
+    background-position:
+      left bottom,
+      left bottom;
+    background-repeat: no-repeat;
+    background-origin: border-box;
+  }
+  /* Header folio rule: a single crisp hairline, so only one double rule sits on the page. */
+  .folio-rule {
+    border-bottom: 1px solid var(--rule-ink-soft);
+  }
+  /* Table header cells: ink hairline drawn inside the bottom edge (survives sticky headers). */
+  .ledger-head {
+    background-image: linear-gradient(to top, var(--rule-ink) 0 1px, transparent 1px);
+  }
+  /* Hairline-bordered mark tile for the brand block and avatar. */
+  .stamp {
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+  }
+  /* Inner hairline on the sidebar spine. */
+  .spine-edge {
+    box-shadow: inset -1px 0 0 var(--sidebar-edge);
+  }
+  /* Posting stamp: small bordered status mark. */
+  .stamp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border: 1px solid currentColor;
+    border-radius: 0.25rem;
+    padding: 0.0625rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+  }
+  /* Ledger figures: display serif, tabular, lining numerals. */
+  .figure {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  /* Identifiers and timestamps: mono, tabular, so columns align. */
+  .tabular {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Auth panel: faint vertical rules, decoration only. */
+.auth-panel-grid {
+  background-image: repeating-linear-gradient(90deg, var(--panel-grid) 0 1px, transparent 1px 96px);
+}
+
+/* Form stage: a soft cobalt wash from the top corner so the paper column is not flat. */
+.auth-stage {
+  background-image:
+    radial-gradient(
+      60% 45% at 85% 0%,
+      color-mix(in oklab, var(--primary) 11%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      40% 35% at 0% 100%,
+      color-mix(in oklab, var(--secondary) 7%, transparent),
+      transparent 70%
+    );
+}
+
+/* Panel glow behind the doorway. */
+.auth-panel-glow {
+  background-image: radial-gradient(
+    55% 45% at 20% 85%,
+    color-mix(in oklab, var(--panel-accent) 22%, transparent),
+    transparent 70%
+  );
+}
+
+/* Auth fields: soft halo on keyboard focus, on top of the outline. */
+.auth-field {
+  transition:
+    box-shadow var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+.auth-field:focus-visible {
+  box-shadow: var(--ring-glow);
+}
+
+/* Dashboard: figures settle in once, chart line draws in once. */
+@media (prefers-reduced-motion: no-preference) {
+  .figure-in {
+    animation: figure-in 300ms var(--ease-out) both;
+  }
+  @keyframes figure-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+  .chart-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: auth-draw 700ms var(--ease-out) 100ms forwards;
+  }
+}
+
+/* Auth doorway: strokes draw in once. Static for reduced-motion users. */
+@media (prefers-reduced-motion: no-preference) {
+  .auth-rise {
+    animation: auth-rise var(--duration-slow) var(--ease-out) both;
+  }
+  @keyframes auth-rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  .auth-doorway path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: auth-draw 600ms var(--ease-out) 150ms forwards;
+  }
+  .auth-doorway path:nth-child(2) {
+    animation-delay: 300ms;
+  }
+  @keyframes auth-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+}
