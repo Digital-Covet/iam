@@ -1,0 +1,8 @@
+{
+  "name": "IAM Digital Covet",
+  "short_name": "IAM",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }],
+  "theme_color": "#dc2626",
+  "background_color": "#ffffff",
+  "display": "browser"
+}
