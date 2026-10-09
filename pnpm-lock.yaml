@@ -188,7 +188,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  eslint-plugin-react>eslint: ^10.11.0
+  eslint-plugin-react>eslint: ^10.12.0
 
 importers:
 
@@ -2406,7 +2406,7 @@ packages:
     resolution: {integrity: sha512-Qteup0SqU15kdocexFNAJMvCJEfa2xUKNV4CC1xsVMrIIqEy3SQ/rqyxCWNzfrd3/ldy6HMlD2e0JDVpDg2qIA==}
     engines: {node: '>=4'}
     peerDependencies:
-      eslint: ^10.11.0
+      eslint: ^10.12.0
 
   eslint-plugin-unicorn@64.0.0:
     resolution: {integrity: sha512-rNZwalHh8i0UfPlhNwg5BTUO1CMdKNmjqe+TgzOTZnpKoi8VBgsW7u9qCHIdpxEzZ1uwrJrPF0uRb7l//K38gA==}
