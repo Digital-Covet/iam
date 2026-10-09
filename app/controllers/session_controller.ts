@@ -72,7 +72,7 @@ export default class SessionController {
       throw error
     }
 
-    return response.redirect(postLoginPath(session))
+    return response.redirect().withQs(false).toPath(postLoginPath(session))
   }
 
   async destroy(ctx: HttpContext) {

@@ -174,7 +174,7 @@ export default class TwoFactorController {
       })
     }
 
-    return response.redirect(postLoginPath(session))
+    return response.redirect().withQs(false).toPath(postLoginPath(session))
   }
 
   /**

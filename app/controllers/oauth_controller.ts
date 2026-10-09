@@ -45,9 +45,11 @@ export default class OAuthController {
     }
     const consentUrl = `/consent?${query.toString()}`
 
+    // forwardQueryString is on globally; these targets either carry their own
+    // query or don't want the OAuth params, so opt out of the automatic append.
     if (!(await auth.check())) {
       session.put('intended_url', `/oauth/authorize?${query.toString()}`)
-      return response.redirect('/login')
+      return response.redirect().withQs(false).toPath('/login')
     }
     const { twoFactorRequired } = await import('#services/two_factor_policy')
     if (await twoFactorRequired()) {
@@ -55,10 +57,10 @@ export default class OAuthController {
       if (!auth.user!.twoFactor?.enabled) {
         session.put('intended_url', `/oauth/authorize?${query.toString()}`)
         session.flash('error', 'Set up two-factor before continuing to the app.')
-        return response.redirect().toRoute('two_factor.createSetup')
+        return response.redirect().withQs(false).toRoute('two_factor.createSetup')
       }
     }
-    return response.redirect(consentUrl)
+    return response.redirect().withQs(false).toPath(consentUrl)
   }
 
   /** POST /oauth/token — authorization_code grant. */
