@@ -34,6 +34,10 @@ const SCOPE_REGISTRY: Record<string, { label: string; description: string }> = {
     label: 'Read your app access',
     description: 'Which Digital Covet apps you may open',
   },
+  roles: {
+    label: 'Read your role',
+    description: 'Your Digital Covet role, e.g. admin or employee',
+  },
 }
 
 type PendingRequest = {

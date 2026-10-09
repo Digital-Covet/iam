@@ -5,7 +5,7 @@ import OAuthService, { OAuthError, issuer } from '#services/oauth_service'
 import SessionTracker from '#services/session_tracker'
 import type { HttpContext } from '@adonisjs/core/http'
 
-const SCOPES = ['openid', 'profile', 'offline_access', 'entitlements']
+const SCOPES = ['openid', 'profile', 'offline_access', 'entitlements', 'roles']
 
 const LOGOUT_PENDING_KEY = 'oauth_logout_pending'
 
@@ -280,6 +280,7 @@ export default class OAuthController {
         'email_verified',
         'picture',
         'app_access',
+        'role',
         'auth_time',
         'amr',
       ],

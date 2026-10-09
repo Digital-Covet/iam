@@ -568,6 +568,10 @@ export default class OAuthService {
         .filter((e) => e.app && e.app.isActive && !e.app.deletedAt)
         .map((e) => e.app.slug.toLowerCase())
     }
+    if (scopes.includes('roles')) {
+      if (!user.role) await user.load('role')
+      claims.role = user.role.name
+    }
     return claims
   }
 }

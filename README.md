@@ -27,7 +27,7 @@ The application is built on **AdonisJS 7** (TypeScript) with **Inertia.js + Reac
 - **User directory** — searchable, filterable user list with invite flow, role/status updates, per-user app entitlements, and CSV export.
 - **Applications & OAuth clients** — register internal apps, issue client credentials, rotate client secrets, and manage per-app entitlements.
 - **OAuth 2.0 / OpenID Connect provider** — authorization code grant with PKCE, refresh tokens (sliding + absolute expiry), token introspection/revocation, `userinfo`, JWKS, and OIDC discovery documents signed with RS256.
-- **Consent screen** — scope-by-scope grant confirmation (`openid`, `profile`, `offline_access`, `entitlements`) with server-side, single-use pending requests.
+- **Consent screen** — scope-by-scope grant confirmation (`openid`, `profile`, `offline_access`, `entitlements`, `roles`) with server-side, single-use pending requests.
 - **Audit log** — every sensitive action recorded, with filtering and a detail inspector.
 - **Auth settings** — configurable password policy and per-method enable/disable toggles (`credential`, `google`, `github`, `oidc`, `totp`, `email_otp`).
 - **Account settings** — profile and avatar upload, password change, session list, and connected-app access.
@@ -102,7 +102,7 @@ The admin console lives at `/dashboard`, `/directory`, `/apps`, `/audit-logs`, `
 | `GET /.well-known/jwks.json` | JSON Web Key Set for token verification |
 | `GET /.well-known/openid-configuration` | OIDC discovery document |
 
-Scopes: `openid`, `profile`, `offline_access`, `entitlements`.
+Scopes: `openid`, `profile`, `offline_access`, `entitlements`, `roles`. The `roles` scope adds a `role` claim (the user's role name, e.g. `admin`) to the ID token and `/oauth/userinfo`; it is not included in access tokens or introspection.
 
 ### Pages
 

@@ -37,6 +37,7 @@ const scopeIcons: Record<string, LucideIcon> = {
   profile: UserRound,
   offline_access: RefreshCw,
   entitlements: KeyRound,
+  roles: BadgeCheck,
 }
 
 const primaryButton =
