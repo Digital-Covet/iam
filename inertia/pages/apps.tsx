@@ -501,6 +501,27 @@ function AppFormDialog({
               </Field.Root>
             </div>
 
+            {editing && (
+              <div className="space-y-1.5">
+                <p className="text-sm font-medium">Client ID</p>
+                {app.clientId ? (
+                  <div className="flex items-center gap-1 rounded-lg border border-border-strong bg-background pl-3">
+                    <code className="tabular min-w-0 flex-1 truncate text-sm" title={app.clientId}>
+                      {app.clientId}
+                    </code>
+                    <CopyButton value={app.clientId} label={`Client ID for ${app.name}`} />
+                  </div>
+                ) : (
+                  <p className="rounded-lg border border-dashed border-border px-3 py-2 text-sm text-muted-foreground">
+                    Saving creates the OAuth client and its Client ID.
+                  </p>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  Generated automatically; it can’t be changed.
+                </p>
+              </div>
+            )}
+
             <Field.Root className="space-y-1.5">
               <Field.Label className="text-sm font-medium">Description (optional)</Field.Label>
               <Input
