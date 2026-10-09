@@ -84,7 +84,7 @@ Production build and start:
 
 ```bash
 pnpm build          # compiles to ./build
-pnpm start          # node bin/server.js
+pnpm start          # node build/bin/server.js
 ```
 
 The admin console lives at `/dashboard`, `/directory`, `/apps`, `/audit-logs`, `/roles-access`, `/auth-settings`, and `/account-settings`. Authentication screens are at `/login`, `/forgot-password`, and `/reset-password/:token`. Accounts are created by invitation from the directory; there is no public signup.
