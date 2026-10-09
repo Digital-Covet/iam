@@ -16,7 +16,7 @@ const TRACKED_KEY = 'iam_session_tracked'
 const SESSION_TTL_HOURS = 2
 const TOUCH_AFTER_SECONDS = 60
 
-export type LoginMethod = 'password' | 'password+totp' | 'password+backup_code' | 'signup'
+export type LoginMethod = 'password' | 'password+totp' | 'password+backup_code'
 
 /**
  * Mirrors every signed-in browser session into the `session` table so the

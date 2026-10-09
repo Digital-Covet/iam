@@ -160,13 +160,6 @@ export default function Login() {
             )}
           </button>
         </form>
-
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          New to Digital Covet?{' '}
-          <Link href="/signup" className={authLinkClass}>
-            Create an account
-          </Link>
-        </p>
       </AuthShell>
     </>
   )

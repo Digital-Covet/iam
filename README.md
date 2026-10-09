@@ -87,7 +87,7 @@ pnpm build          # compiles to ./build
 pnpm start          # node bin/server.js
 ```
 
-The admin console lives at `/dashboard`, `/directory`, `/apps`, `/audit-logs`, `/roles-access`, `/auth-settings`, and `/account-settings`. Authentication screens are at `/login`, `/signup`, `/forgot-password`, and `/reset-password/:token`.
+The admin console lives at `/dashboard`, `/directory`, `/apps`, `/audit-logs`, `/roles-access`, `/auth-settings`, and `/account-settings`. Authentication screens are at `/login`, `/forgot-password`, and `/reset-password/:token`. Accounts are created by invitation from the directory; there is no public signup.
 
 ### OAuth 2.0 / OIDC endpoints
 
@@ -113,7 +113,6 @@ All screens are React components under `inertia/pages/`, rendered through Inerti
 | Route | Page | Description |
 | --- | --- | --- |
 | `/login` | `auth/login.tsx` | "Welcome back" sign-in with email/password, show-password toggle, and inline/flash error handling. |
-| `/signup` | `auth/signup.tsx` | Create-account form (full name, email, password) for staff who are not invited. |
 | `/forgot-password` | `auth/forgot_password.tsx` | Requests a password-reset email link. |
 | `/reset-password/:token` | `auth/reset_password.tsx` | Sets a new password; renders as either an invite acceptance (`kind=invite`) or a reset from email. |
 | `/verify-2fa` | `auth/verify_2fa.tsx` | Second-factor challenge — 6-digit TOTP code or a backup code, with attempts remaining. |
