@@ -73,7 +73,7 @@ export default class ConsentController {
    * GET /consent — validate the authorization request server-side,
    * stash it in session, render the grant card.
    */
-  async show({ request, inertia, auth, session }: HttpContext) {
+  async show({ request, response, inertia, auth, session }: HttpContext) {
     const user = auth.user!
     const qs = request.qs()
 
@@ -86,26 +86,45 @@ export default class ConsentController {
       typeof qs.code_challenge_method === 'string' ? qs.code_challenge_method.trim() : null
     const nonce = typeof qs.nonce === 'string' && qs.nonce.length <= 512 ? qs.nonce : null
 
-    const invalid = (reason: string) =>
-      inertia.render('consent', { invalid: true, invalidReason: reason })
+    // The card text stays generic on purpose; the specific reason goes to the
+    // audit log so a rejected request can be diagnosed without leaking detail.
+    const invalid = async (
+      reason: string,
+      clientDbId: string | null = null,
+      extra: Record<string, unknown> = {}
+    ) => {
+      await AuditLog.create({
+        actorId: user.id,
+        action: 'oauth.consent_invalid',
+        resourceType: 'oauth_client',
+        resourceId: clientDbId ?? clientId.slice(0, 128),
+        status: 'failure',
+        ipAddress: request.ip(),
+        metadata: { reason, ...extra },
+      })
+      return inertia.render('consent', {
+        invalid: true,
+        invalidReason: 'This authorization request is no longer valid.',
+      })
+    }
 
     if (!clientId || clientId.length > 128) {
-      return invalid('This authorization request is no longer valid.')
+      return invalid('bad_client_id')
     }
     if (!redirectUri || redirectUri.length > 2048) {
-      return invalid('This authorization request is no longer valid.')
+      return invalid('bad_redirect_uri')
     }
     let parsedRedirect: URL
     try {
       parsedRedirect = new URL(redirectUri)
     } catch {
-      return invalid('This authorization request is no longer valid.')
+      return invalid('unparseable_redirect_uri')
     }
     if (!['https:', 'http:'].includes(parsedRedirect.protocol)) {
-      return invalid('This authorization request is no longer valid.')
+      return invalid('bad_redirect_protocol')
     }
     if (state !== null && (state.length === 0 || state.length > 1024)) {
-      return invalid('This authorization request is no longer valid.')
+      return invalid('bad_state')
     }
 
     const client = await OAuthClient.query()
@@ -115,35 +134,26 @@ export default class ConsentController {
       .first()
 
     if (!client || !client.app) {
-      return invalid('This authorization request is no longer valid.')
+      return invalid('unknown_client')
     }
     if (client.app.deletedAt !== null || !client.app.isActive) {
-      return invalid('This authorization request is no longer valid.')
+      return invalid('app_inactive', client.id)
     }
 
     // Exact-match redirect check — the open-redirect guard. No prefix,
     // substring or fallback matching.
     if (!client.redirectUris.includes(redirectUri)) {
-      await AuditLog.create({
-        actorId: user.id,
-        action: 'oauth.consent_invalid',
-        resourceType: 'oauth_client',
-        resourceId: client.id,
-        status: 'failure',
-        ipAddress: request.ip(),
-        metadata: { reason: 'redirect_uri_mismatch' },
-      })
-      return invalid('This authorization request is no longer valid.')
+      return invalid('redirect_uri_mismatch', client.id, { redirectUri: redirectUri.slice(0, 256) })
     }
 
     if (client.requirePkce && !codeChallenge) {
-      return invalid('This authorization request is no longer valid.')
+      return invalid('pkce_required', client.id)
     }
     if (codeChallenge && !isValidChallenge(codeChallenge)) {
-      return invalid('This authorization request is no longer valid.')
+      return invalid('bad_code_challenge', client.id)
     }
     if (codeChallengeMethod !== null && !['S256', 'plain'].includes(codeChallengeMethod)) {
-      return invalid('This authorization request is no longer valid.')
+      return invalid('bad_code_challenge_method', client.id)
     }
 
     // Scope allowlist — unknown scopes reject the whole request instead
@@ -151,20 +161,11 @@ export default class ConsentController {
     const requested = rawScope.split(/\s+/).filter(Boolean)
     const scopes = [...new Set(requested)]
     if (scopes.length === 0 || scopes.length > 10) {
-      return invalid('This authorization request is no longer valid.')
+      return invalid('bad_scope_count', client.id)
     }
     for (const s of scopes) {
       if (!Object.hasOwn(SCOPE_REGISTRY, s)) {
-        await AuditLog.create({
-          actorId: user.id,
-          action: 'oauth.consent_invalid',
-          resourceType: 'oauth_client',
-          resourceId: client.id,
-          status: 'failure',
-          ipAddress: request.ip(),
-          metadata: { reason: 'unknown_scope', scope: s.slice(0, 64) },
-        })
-        return invalid('This authorization request is no longer valid.')
+        return invalid('unknown_scope', client.id, { scope: s.slice(0, 64) })
       }
     }
 
@@ -191,7 +192,9 @@ export default class ConsentController {
     // Ask only the first time: skip the card when the user holds a live grant
     // for this client that already covers every requested scope. A new scope,
     // a revoked grant or prompt=consent falls through to the card.
-    const forceConsent = String(qs.prompt ?? '').split(/\s+/).includes('consent')
+    const forceConsent = String(qs.prompt ?? '')
+      .split(/\s+/)
+      .includes('consent')
     if (!forceConsent) {
       const grants = await db
         .from('oauth_grant')
@@ -217,7 +220,10 @@ export default class ConsentController {
           },
           'oauth.consent_reused'
         )
-        return inertia.location(target)
+        // inertia.location() is a 409 + header that only an Inertia XHR client
+        // follows; a top-level navigation from the app needs a real 302.
+        if (request.header('x-inertia')) return inertia.location(target)
+        return response.redirect().toPath(target)
       }
     }
 
