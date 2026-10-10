@@ -4,6 +4,7 @@ import { signInContext } from '#services/sign_in_context'
 import OAuthClient from '#models/oauth_client'
 import AppEntitlement from '#models/app_entitlement'
 import AuditLog from '#models/audit_log'
+import db from '@adonisjs/lucid/services/db'
 import { consentDecisionValidator } from '#validators/consent'
 import type { HttpContext } from '@adonisjs/core/http'
 
@@ -187,6 +188,39 @@ export default class ConsentController {
       .where('status', 'success')
       .first()
 
+    // Ask only the first time: skip the card when the user holds a live grant
+    // for this client that already covers every requested scope. A new scope,
+    // a revoked grant or prompt=consent falls through to the card.
+    const forceConsent = String(qs.prompt ?? '').split(/\s+/).includes('consent')
+    if (!forceConsent) {
+      const grants = await db
+        .from('oauth_grant')
+        .where('user_id', user.id)
+        .where('oauth_client_id', client.id)
+        .whereNull('revoked_at')
+        .select('scopes')
+      const granted = new Set<string>(grants.flatMap((g) => g.scopes ?? []))
+      if (scopes.every((s) => granted.has(s))) {
+        const target = await this.issueAndAudit(
+          { request, session },
+          {
+            requestId: randomUUID(),
+            userId: user.id,
+            clientDbId: client.id,
+            clientId: client.clientId,
+            redirectUri,
+            scopes,
+            state,
+            codeChallenge,
+            codeChallengeMethod,
+            nonce,
+          },
+          'oauth.consent_reused'
+        )
+        return inertia.location(target)
+      }
+    }
+
     const requestId = randomUUID()
     const pending: PendingRequest = {
       requestId,
@@ -238,10 +272,24 @@ export default class ConsentController {
       })
     }
 
+    const target = await this.issueAndAudit({ request, session }, pending, 'oauth.consent_granted')
+
+    session.forget(pendingKey(requestId))
+    session.put(consumedKey(requestId), target)
+
+    return inertia.location(target)
+  }
+
+  /** Issue a one-time code for a validated request, audit it, return the redirect URL. */
+  private async issueAndAudit(
+    { request, session }: Pick<HttpContext, 'request' | 'session'>,
+    pending: PendingRequest,
+    action: 'oauth.consent_granted' | 'oauth.consent_reused'
+  ): Promise<string> {
     const signIn = signInContext(session)
     const code = await OAuthService.issueCode({
       clientDbId: pending.clientDbId,
-      userId: user.id,
+      userId: pending.userId,
       redirectUri: pending.redirectUri,
       scopes: pending.scopes,
       codeChallenge: pending.codeChallenge,
@@ -255,14 +303,10 @@ export default class ConsentController {
     if (pending.state !== null) {
       url.searchParams.set('state', pending.state)
     }
-    const target = url.toString()
-
-    session.forget(pendingKey(requestId))
-    session.put(consumedKey(requestId), target)
 
     await AuditLog.create({
-      actorId: user.id,
-      action: 'oauth.consent_granted',
+      actorId: pending.userId,
+      action,
       resourceType: 'oauth_client',
       resourceId: pending.clientDbId,
       status: 'success',
@@ -275,7 +319,7 @@ export default class ConsentController {
       },
     })
 
-    return inertia.location(target)
+    return url.toString()
   }
 
   /** POST /consent/deny — 302 with error=access_denied (RFC 6749 §4.1.2.1). */

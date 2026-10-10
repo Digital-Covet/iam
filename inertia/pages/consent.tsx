@@ -206,7 +206,7 @@ function ConsentRequest({
       {alreadyGranted && (
         <div className="mt-5 flex items-start gap-2.5 rounded-lg border border-info/40 bg-info/10 px-3 py-2.5 text-sm text-info">
           <BadgeCheck size={18} aria-hidden="true" className="mt-0.5 shrink-0" />
-          <p>You've approved {appName} before. Review this request to continue.</p>
+          <p>You've approved {appName} before, but this request needs your approval again.</p>
         </div>
       )}
 
