@@ -223,7 +223,9 @@ export default class ConsentController {
         // inertia.location() is a 409 + header that only an Inertia XHR client
         // follows; a top-level navigation from the app needs a real 302.
         if (request.header('x-inertia')) return inertia.location(target)
-        return response.redirect().toPath(target)
+        // forwardQueryString is on globally; opt out or the /consent query is appended
+        // to the client's redirect_uri and corrupts `state`.
+        return response.redirect().withQs(false).toPath(target)
       }
     }
 
