@@ -43,13 +43,21 @@ async function viewerRoleName(auth: Auth): Promise<string> {
   return viewer.role?.name?.toLowerCase() ?? 'employee'
 }
 
-async function canManageSuperadmin(auth: Auth) {
+/**
+ * Roles that hold sensitive grants (app/OAuth management, global settings,
+ * role creation). Only a superadmin may hand them out or manage someone who
+ * already holds one.
+ */
+const PRIVILEGED_ROLES = new Set(['superadmin', 'developer'])
+const isPrivileged = (role?: Role | null) => PRIVILEGED_ROLES.has(role?.name?.toLowerCase() ?? '')
+
+async function canManagePrivileged(auth: Auth) {
   return (await viewerRoleName(auth)) === 'superadmin'
 }
 
-/** Only superadmins may hand out the superadmin role. */
+/** Only superadmins may hand out a privileged role. */
 async function canAssignRole(auth: Auth, role: Role) {
-  return role.name.toLowerCase() !== 'superadmin' || (await canManageSuperadmin(auth))
+  return !isPrivileged(role) || (await canManagePrivileged(auth))
 }
 
 async function isLastSuperadmin(user: User) {
@@ -272,7 +280,7 @@ export default class DirectoryController {
       return response.redirect().back()
     }
     if (!(await canAssignRole(auth, roleRow))) {
-      session.flash('error', 'Only superadmins can grant the superadmin role.')
+      session.flash('error', `Only superadmins can grant the ${roleRow.name.toLowerCase()} role.`)
       return response.redirect().back()
     }
 
@@ -356,7 +364,7 @@ export default class DirectoryController {
       return response.redirect().back()
     }
     if (!(await canAssignRole(auth, roleRow))) {
-      session.flash('error', 'Only superadmins can grant the superadmin role.')
+      session.flash('error', `Only superadmins can grant the ${roleRow.name.toLowerCase()} role.`)
       return response.redirect().back()
     }
     if (auth.user?.id === user.id) {
@@ -364,12 +372,19 @@ export default class DirectoryController {
       return response.redirect().back()
     }
     await user.load('role')
-    if (user.role?.name?.toLowerCase() === 'superadmin') {
-      if (!(await canManageSuperadmin(auth))) {
-        session.flash('error', 'Only superadmins can change a superadmin’s role.')
+    if (isPrivileged(user.role)) {
+      if (!(await canManagePrivileged(auth))) {
+        session.flash(
+          'error',
+          `Only superadmins can change a ${user.role!.name.toLowerCase()}’s role.`
+        )
         return response.redirect().back()
       }
-      if (roleRow.name.toLowerCase() !== 'superadmin' && (await isLastSuperadmin(user))) {
+      if (
+        user.role!.name.toLowerCase() === 'superadmin' &&
+        roleRow.name.toLowerCase() !== 'superadmin' &&
+        (await isLastSuperadmin(user))
+      ) {
         session.flash('error', 'You cannot demote the last superadmin.')
         return response.redirect().back()
       }
@@ -398,8 +413,11 @@ export default class DirectoryController {
     )
     const user = await User.query().whereNull('deleted_at').where('id', params.id).firstOrFail()
     await user.load('role')
-    if (user.role?.name?.toLowerCase() === 'superadmin' && !(await canManageSuperadmin(auth))) {
-      session.flash('error', 'Only superadmins can change a superadmin’s status.')
+    if (isPrivileged(user.role) && !(await canManagePrivileged(auth))) {
+      session.flash(
+        'error',
+        `Only superadmins can change a ${user.role!.name.toLowerCase()}’s status.`
+      )
       return response.redirect().back()
     }
     if (status === 'suspend' && auth.user?.id === user.id) {
@@ -449,8 +467,8 @@ export default class DirectoryController {
     const { params, request, response, session, auth } = ctx
     const user = await User.query().whereNull('deleted_at').where('id', params.id).firstOrFail()
     await user.load('role')
-    if (user.role?.name?.toLowerCase() === 'superadmin' && !(await canManageSuperadmin(auth))) {
-      session.flash('error', 'Only superadmins can sign a superadmin out.')
+    if (isPrivileged(user.role) && !(await canManagePrivileged(auth))) {
+      session.flash('error', `Only superadmins can sign a ${user.role!.name.toLowerCase()} out.`)
       return response.redirect().back()
     }
 
@@ -495,16 +513,19 @@ export default class DirectoryController {
   /**
    * DELETE /directory/:id/two-factor — admin reset for a lost device +
    * lost backup codes. Gated by `users.mfa.reset`; only a superadmin may
-   * reset a superadmin. Deletes the row, revokes every session, audits and
-   * emails the owner.
+   * reset a privileged (superadmin/developer) account. Deletes the row,
+   * revokes every session, audits and emails the owner.
    */
   async resetTwoFactor(ctx: HttpContext) {
     const { params, request, response, session, auth } = ctx
     const user = await User.query().whereNull('deleted_at').where('id', params.id).firstOrFail()
     await user.load('role')
     await user.load('twoFactor').catch(() => {})
-    if (user.role?.name?.toLowerCase() === 'superadmin' && !(await canManageSuperadmin(auth))) {
-      session.flash('error', 'Only superadmins can reset a superadmin’s two-factor.')
+    if (isPrivileged(user.role) && !(await canManagePrivileged(auth))) {
+      session.flash(
+        'error',
+        `Only superadmins can reset a ${user.role!.name.toLowerCase()}’s two-factor.`
+      )
       return response.redirect().back()
     }
     if (!user.twoFactor) {
@@ -590,12 +611,12 @@ export default class DirectoryController {
       return response.redirect().back()
     }
     await user.load('role')
-    if (user.role?.name?.toLowerCase() === 'superadmin') {
-      if (!(await canManageSuperadmin(auth))) {
-        session.flash('error', 'Only superadmins can delete a superadmin.')
+    if (isPrivileged(user.role)) {
+      if (!(await canManagePrivileged(auth))) {
+        session.flash('error', `Only superadmins can delete a ${user.role!.name.toLowerCase()}.`)
         return response.redirect().back()
       }
-      if (await isLastSuperadmin(user)) {
+      if (user.role!.name.toLowerCase() === 'superadmin' && (await isLastSuperadmin(user))) {
         session.flash('error', 'You cannot delete the last superadmin.')
         return response.redirect().back()
       }

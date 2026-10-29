@@ -235,6 +235,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
     }
   }
+  'apps.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/apps'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/app_launcher_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/app_launcher_controller').default['index']>>>
+    }
+  }
   'directory.index': {
     methods: ["GET","HEAD"]
     pattern: '/'
@@ -367,64 +379,64 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/directory_controller').default['revokeSessions']>>>
     }
   }
-  'apps.index': {
+  'developer.apps.index': {
     methods: ["GET","HEAD"]
-    pattern: '/apps'
+    pattern: '/developer/apps'
     types: {
       body: {}
       paramsTuple: []
       params: {}
       query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/apps_controller').default['index']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/apps_controller').default['index']>>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/developer_apps_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/developer_apps_controller').default['index']>>>
     }
   }
-  'apps.store': {
+  'developer.apps.store': {
     methods: ["POST"]
-    pattern: '/apps'
+    pattern: '/developer/apps'
     types: {
       body: {}
       paramsTuple: []
       params: {}
       query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/apps_controller').default['store']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/apps_controller').default['store']>>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/developer_apps_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/developer_apps_controller').default['store']>>>
     }
   }
-  'apps.update': {
+  'developer.apps.update': {
     methods: ["PATCH"]
-    pattern: '/apps/:id'
+    pattern: '/developer/apps/:id'
     types: {
       body: {}
       paramsTuple: [ParamValue]
       params: { id: ParamValue }
       query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/apps_controller').default['update']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/apps_controller').default['update']>>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/developer_apps_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/developer_apps_controller').default['update']>>>
     }
   }
-  'apps.destroy': {
+  'developer.apps.destroy': {
     methods: ["DELETE"]
-    pattern: '/apps/:id'
+    pattern: '/developer/apps/:id'
     types: {
       body: {}
       paramsTuple: [ParamValue]
       params: { id: ParamValue }
       query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/apps_controller').default['destroy']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/apps_controller').default['destroy']>>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/developer_apps_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/developer_apps_controller').default['destroy']>>>
     }
   }
-  'apps.rotateSecret': {
+  'developer.apps.rotateSecret': {
     methods: ["POST"]
-    pattern: '/apps/:id/rotate-secret'
+    pattern: '/developer/apps/:id/rotate-secret'
     types: {
       body: {}
       paramsTuple: [ParamValue]
       params: { id: ParamValue }
       query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/apps_controller').default['rotate']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/apps_controller').default['rotate']>>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/developer_apps_controller').default['rotate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/developer_apps_controller').default['rotate']>>>
     }
   }
   'audit.export': {

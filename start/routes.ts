@@ -19,7 +19,8 @@ import router from '@adonisjs/core/services/router'
 
 const DirectoryController = () => import('#controllers/directory_controller')
 const DashboardController = () => import('#controllers/dashboard_controller')
-const AppsController = () => import('#controllers/apps_controller')
+const AppLauncherController = () => import('#controllers/app_launcher_controller')
+const DeveloperAppsController = () => import('#controllers/developer_apps_controller')
 const AuditLogsController = () => import('#controllers/audit_logs_controller')
 const RolesAccessController = () => import('#controllers/roles_access_controller')
 const TwoFactorController = () => import('#controllers/two_factor_controller')
@@ -70,6 +71,12 @@ router
   .group(() => {
     router.get('/dashboard', [DashboardController, 'index']).as('dashboard')
     router.post('logout', [controllers.Session, 'destroy'])
+
+    /**
+     * Everyone's app launcher: only the apps this person has an enabled
+     * entitlement to. Managing apps lives under /developer/apps below.
+     */
+    router.get('/apps', [AppLauncherController, 'index']).as('apps.index')
 
     /**
      * Admin console. Every route is gated by the permission it needs, checked
@@ -129,25 +136,29 @@ router
       })
       .use(can({ all: ['sessions.revoke'] }))
 
+    /**
+     * Developer console. Registers apps and their OAuth clients. Admins keep
+     * read access; only developers and superadmins hold the write keys.
+     */
     router
-      .get('/apps', [AppsController, 'index'])
-      .as('apps.index')
+      .get('/developer/apps', [DeveloperAppsController, 'index'])
+      .as('developer.apps.index')
       .use(can({ all: ['apps.read', 'oauth.clients.read'] }))
     router
-      .post('/apps', [AppsController, 'store'])
-      .as('apps.store')
+      .post('/developer/apps', [DeveloperAppsController, 'store'])
+      .as('developer.apps.store')
       .use(can({ all: ['apps.create', 'oauth.clients.manage'] }))
     router
-      .patch('/apps/:id', [AppsController, 'update'])
-      .as('apps.update')
+      .patch('/developer/apps/:id', [DeveloperAppsController, 'update'])
+      .as('developer.apps.update')
       .use(can({ all: ['apps.update', 'oauth.clients.manage'] }))
     router
-      .delete('/apps/:id', [AppsController, 'destroy'])
-      .as('apps.destroy')
+      .delete('/developer/apps/:id', [DeveloperAppsController, 'destroy'])
+      .as('developer.apps.destroy')
       .use(can({ all: ['apps.delete', 'oauth.clients.manage'] }))
     router
-      .post('/apps/:id/rotate-secret', [AppsController, 'rotate'])
-      .as('apps.rotateSecret')
+      .post('/developer/apps/:id/rotate-secret', [DeveloperAppsController, 'rotate'])
+      .as('developer.apps.rotateSecret')
       .use(can({ all: ['oauth.clients.manage'] }))
 
     // Registered before `/audit-logs/:id` so "export" is never read as an id.

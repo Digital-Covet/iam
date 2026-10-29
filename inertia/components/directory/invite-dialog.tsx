@@ -26,8 +26,10 @@ type Props = {
 
 export function InviteDialog({ open, onOpenChange, roles, apps }: Props) {
   const { isSuperadmin, can } = usePermissions()
-  // Only superadmins may hand out the superadmin role; the server enforces it too.
-  const assignable = roles.filter((r) => isSuperadmin || r.name.toLowerCase() !== 'superadmin')
+  // Only superadmins may hand out a privileged role; the server enforces it too.
+  const assignable = roles.filter(
+    (r) => isSuperadmin || !['superadmin', 'developer'].includes(r.name.toLowerCase())
+  )
   const defaultRole =
     assignable.find((r) => r.name.toLowerCase() === 'employee')?.name ?? assignable[0]?.name ?? ''
   const canGrant = can('entitlements.grant')

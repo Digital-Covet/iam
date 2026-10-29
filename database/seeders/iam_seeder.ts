@@ -4,7 +4,7 @@ import Permission from '#models/permission'
 import App from '#models/app'
 import PasswordPolicy from '#models/password_policy'
 import AuthMethod from '#models/auth_method'
-import { SUPERADMIN_ONLY_KEYS } from '#services/access_service'
+import { DEVELOPER_KEYS, SUPERADMIN_ONLY_KEYS } from '#services/access_service'
 
 /**
  * Sectioned permission catalogue. `section` groups permissions in the UI.
@@ -74,8 +74,9 @@ const PERMISSIONS = [
 ]
 
 /**
- * The `admin` role gets everything except the superadmin-only keys (role
+ * The `admin` role gets everything except the sensitive keys (role
  * creation/deletion, app and OAuth client management, global settings writes).
+ * App/OAuth management belongs to the `developer` role.
  */
 const ADMIN_EXCLUDED = SUPERADMIN_ONLY_KEYS
 
@@ -86,6 +87,11 @@ export default class IamSeeder extends BaseSeeder {
     await Role.updateOrCreateMany('name', [
       { name: 'superadmin', description: 'Full, unrestricted access', isSystem: true },
       { name: 'admin', description: 'Administrative access', isSystem: true },
+      {
+        name: 'developer',
+        description: 'Builds and maintains the apps that sign in through IAM',
+        isSystem: true,
+      },
       { name: 'employee', description: 'Standard access', isSystem: true },
     ])
 
@@ -105,9 +111,13 @@ export default class IamSeeder extends BaseSeeder {
     const employeeIds = PERMISSIONS.filter((permission) => EMPLOYEE_KEYS.has(permission.key)).map(
       (permission) => permissionIdByKey.get(permission.key)!
     )
+    const developerIds = PERMISSIONS.filter((permission) => DEVELOPER_KEYS.has(permission.key)).map(
+      (permission) => permissionIdByKey.get(permission.key)!
+    )
 
     await roleByName.get('superadmin')!.related('permissions').sync(superadminIds)
     await roleByName.get('admin')!.related('permissions').sync(adminIds)
+    await roleByName.get('developer')!.related('permissions').sync(developerIds)
     await roleByName.get('employee')!.related('permissions').sync(employeeIds)
 
     await App.updateOrCreateMany('slug', [
@@ -115,18 +125,21 @@ export default class IamSeeder extends BaseSeeder {
         slug: 'share',
         name: 'Share',
         description: 'Content sharing workspace',
+        homeUrl: 'https://share.digitalcovet.com',
         isActive: true,
       },
       {
         slug: 'portfolio',
         name: 'Portfolio',
         description: 'Portfolio management',
+        homeUrl: 'https://portfolio.digitalcovet.com',
         isActive: true,
       },
       {
         slug: 'desk',
         name: 'Desk',
         description: 'Support and operations desk',
+        homeUrl: 'https://desk.flonion.com',
         isActive: true,
       },
     ])

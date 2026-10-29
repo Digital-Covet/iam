@@ -9,18 +9,6 @@ import { accessFor } from '#services/access_service'
 import OAuthService from '#services/oauth_service'
 import type { HttpContext } from '@adonisjs/core/http'
 
-/**
- * Canonical host per app slug. The card's logout-URL line shows the OAuth
- * client's first post-logout redirect URI, falling back to https://<domain>
- * so the line is never empty. Domains confirmed with the product owner:
- * Desk lives on flonion.com.
- */
-const APP_DOMAINS: Record<string, string> = {
-  share: 'share.digitalcovet.com',
-  portfolio: 'portfolio.digitalcovet.com',
-  desk: 'desk.flonion.com',
-}
-
 const AUTH_METHODS = ['client_secret_basic', 'client_secret_post', 'none'] as const
 
 const uriList = () => vine.array(vine.string().trim().maxLength(2000)).maxLength(20)
@@ -28,6 +16,7 @@ const uriList = () => vine.array(vine.string().trim().maxLength(2000)).maxLength
 const configFields = {
   name: vine.string().trim().minLength(2).maxLength(120),
   description: vine.string().trim().maxLength(500).nullable().optional(),
+  homeUrl: vine.string().trim().maxLength(2000).nullable().optional(),
   isActive: vine.boolean().optional(),
   redirectUris: uriList(),
   postLogoutRedirectUris: uriList(),
@@ -44,7 +33,7 @@ const createAppValidator = vine.create({
   ...configFields,
 })
 
-/** The slug is immutable: entitlements, consent and APP_DOMAINS key off it. */
+/** The slug is immutable: entitlements, consent and audit metadata key off it. */
 const updateAppValidator = vine.create(configFields)
 
 type ClientConfig = {
@@ -86,7 +75,11 @@ function configProblem(config: ClientConfig): string | null {
 
 const unique = (uris: string[]) => [...new Set(uris.map((u) => u.trim()).filter(Boolean))]
 
-export default class AppsController {
+/**
+ * Developer-only app registry — `/developer/apps`. Registers internal apps and
+ * their OAuth clients. The user-facing `/apps` page is a separate launcher.
+ */
+export default class DeveloperAppsController {
   async index(ctx: HttpContext) {
     const { inertia, session } = ctx
     const apps = await App.query()
@@ -109,18 +102,17 @@ export default class AppsController {
     const rotatedAppId = session.flashMessages.get('rotatedAppId') as string | undefined
     const rotatedSecret = session.flashMessages.get('rotatedSecret') as string | undefined
 
-    return inertia.render('apps', {
+    return inertia.render('developer_apps', {
       apps: apps.map((a) => {
-        const slug = a.slug.toLowerCase()
         const client = a.oauthClients[0] ?? null
-        const logoutUrl =
-          client?.postLogoutRedirectUris?.[0] ??
-          (APP_DOMAINS[slug] ? `https://${APP_DOMAINS[slug]}` : null)
+        // Prefer an explicit post-logout redirect, then the app's own home URL.
+        const logoutUrl = client?.postLogoutRedirectUris?.[0] ?? a.homeUrl ?? null
         return {
           id: a.id,
-          slug,
+          slug: a.slug.toLowerCase(),
           name: a.name,
           description: a.description,
+          homeUrl: a.homeUrl,
           isActive: a.isActive,
           clientId: client?.clientId ?? null,
           logoutUrl,
@@ -142,7 +134,7 @@ export default class AppsController {
   }
 
   /**
-   * Register an app together with its OAuth client. Superadmin only. A
+   * Register an app together with its OAuth client. Developer only. A
    * confidential client's secret travels back as a one-request flash, exactly
    * like a rotation, and is never stored in plain text.
    */
@@ -151,8 +143,9 @@ export default class AppsController {
 
     const data = await request.validateUsing(createAppValidator)
     const config = this.#configOf(data)
+    const homeUrl = data.homeUrl?.trim() || null
 
-    const problem = configProblem(config)
+    const problem = configProblem(config) ?? (homeUrl ? uriProblem(homeUrl) : null)
     if (problem) {
       session.flash('error', problem)
       return response.redirect().back()
@@ -172,6 +165,7 @@ export default class AppsController {
           slug: data.slug,
           name: data.name,
           description: data.description?.trim() || null,
+          homeUrl,
           isActive: data.isActive ?? true,
         },
         { client: trx }
@@ -195,7 +189,7 @@ export default class AppsController {
   }
 
   /**
-   * Edit an app and its OAuth client. Superadmin only. An app that has no
+   * Edit an app and its OAuth client. Developer only. An app that has no
    * client yet (for example a seeded one) gets one created here.
    */
   async update(ctx: HttpContext) {
@@ -204,8 +198,9 @@ export default class AppsController {
     const app = await App.query().whereNull('deleted_at').where('id', params.id).firstOrFail()
     const data = await request.validateUsing(updateAppValidator)
     const config = this.#configOf(data)
+    const homeUrl = data.homeUrl?.trim() || null
 
-    const problem = configProblem(config)
+    const problem = configProblem(config) ?? (homeUrl ? uriProblem(homeUrl) : null)
     if (problem) {
       session.flash('error', problem)
       return response.redirect().back()
@@ -221,12 +216,13 @@ export default class AppsController {
     const isActive = data.isActive ?? app.isActive
     track('name', app.name, data.name)
     track('description', app.description, description)
+    track('homeUrl', app.homeUrl, homeUrl)
     track('isActive', app.isActive, isActive)
 
     let plain: string | null = null
     await db.transaction(async (trx) => {
       app.useTransaction(trx)
-      app.merge({ name: data.name, description, isActive })
+      app.merge({ name: data.name, description, homeUrl, isActive })
       await app.save()
 
       if (!client) {
@@ -276,7 +272,7 @@ export default class AppsController {
   }
 
   /**
-   * Soft-delete an app and its OAuth clients. Superadmin only. Existing
+   * Soft-delete an app and its OAuth clients. Developer only. Existing
    * entitlements are kept so the directory history stays intact.
    */
   async destroy(ctx: HttpContext) {
@@ -304,10 +300,10 @@ export default class AppsController {
   }
 
   /**
-   * Rotate an app's OAuth client secret. Superadmin only — the button is
-   * hidden for other roles, this is the server-side enforcement. The plain
-   * secret travels back as a one-request flash (never persisted, never
-   * logged) and renders once inside the still-open Manage dialog.
+   * Rotate an app's OAuth client secret. Developer only — the button is hidden
+   * for other roles, this is the server-side enforcement. The plain secret
+   * travels back as a one-request flash (never persisted, never logged) and
+   * renders once inside the still-open Manage dialog.
    */
   async rotate(ctx: HttpContext) {
     const { params, request, response, session, auth } = ctx

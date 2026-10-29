@@ -59,7 +59,9 @@ const nf = new Intl.NumberFormat('en-US')
 
 /**
  * UI hints only; the server re-checks everything. Keep in step with
- * SUPERADMIN_ONLY_KEYS in app/services/access_service.ts.
+ * SUPERADMIN_ONLY_KEYS in app/services/access_service.ts. The seeded
+ * `developer` role holds the app/OAuth keys, but only a superadmin can grant
+ * or revoke them here.
  */
 const SUPERADMIN_ONLY = new Set([
   'roles.create',
@@ -151,7 +153,7 @@ function SuperadminOnlyTag() {
   return (
     <span className="stamp-chip text-muted-foreground">
       <Lock size={12} aria-hidden="true" />
-      Superadmin only
+      Superadmin-granted
     </span>
   )
 }

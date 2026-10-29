@@ -19,6 +19,10 @@ export default class App extends BaseModel {
   @column()
   declare description: string | null
 
+  /** Canonical entry point shown as the "Open" link on the user Apps page. */
+  @column()
+  declare homeUrl: string | null
+
   @column()
   declare isActive: boolean
 

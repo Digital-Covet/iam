@@ -35,7 +35,7 @@ const SECTION_LABELS: Record<string, string> = {
   settings: 'SETTINGS',
 }
 
-const SYSTEM_ORDER = ['superadmin', 'admin', 'employee']
+const SYSTEM_ORDER = ['superadmin', 'admin', 'developer', 'employee']
 
 const matrixValidator = vine.create({
   grants: vine.array(
@@ -184,11 +184,16 @@ export default class RolesAccessController {
         }
       }
       if (!viewerIsSuperadmin) {
-        for (const key of g.permissionKeys) {
-          if (SUPERADMIN_ONLY_KEYS.has(key)) {
-            session.flash('error', `Only superadmins can grant “${key}”.`)
-            return response.redirect().back()
-          }
+        const current = new Set(role.permissions.map((p) => p.key))
+        const next = new Set(g.permissionKeys)
+        // Unchanged sensitive grants are fine: the admin is not granting or
+        // revoking anything, just saving other cells alongside them.
+        const sensitive =
+          [...next].find((k) => SUPERADMIN_ONLY_KEYS.has(k) && !current.has(k)) ??
+          [...current].find((k) => SUPERADMIN_ONLY_KEYS.has(k) && !next.has(k))
+        if (sensitive) {
+          session.flash('error', `Only superadmins can change “${sensitive}”.`)
+          return response.redirect().back()
         }
       }
     }

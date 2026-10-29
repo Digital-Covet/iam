@@ -24,6 +24,7 @@ declare module '@adonisjs/inertia/types' {
     'auth/verify_2fa': ExtractProps<(typeof import('../../inertia/pages/auth/verify_2fa.tsx'))['default']>
     'consent': ExtractProps<(typeof import('../../inertia/pages/consent.tsx'))['default']>
     'dashboard': ExtractProps<(typeof import('../../inertia/pages/dashboard.tsx'))['default']>
+    'developer_apps': ExtractProps<(typeof import('../../inertia/pages/developer_apps.tsx'))['default']>
     'directory': ExtractProps<(typeof import('../../inertia/pages/directory.tsx'))['default']>
     'errors/not_found': ExtractProps<(typeof import('../../inertia/pages/errors/not_found.tsx'))['default']>
     'errors/server_error': ExtractProps<(typeof import('../../inertia/pages/errors/server_error.tsx'))['default']>

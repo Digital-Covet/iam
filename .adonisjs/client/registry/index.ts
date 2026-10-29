@@ -120,6 +120,12 @@ const routes = {
     tokens: [{"old":"/logout","type":0,"val":"logout","end":""}],
     types: placeholder as Registry['session.destroy']['types'],
   },
+  'apps.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/apps',
+    tokens: [{"old":"/apps","type":0,"val":"apps","end":""}],
+    types: placeholder as Registry['apps.index']['types'],
+  },
   'directory.index': {
     methods: ["GET","HEAD"],
     pattern: '/',
@@ -186,35 +192,35 @@ const routes = {
     tokens: [{"old":"/directory/:id/sessions/:sessionId","type":0,"val":"directory","end":""},{"old":"/directory/:id/sessions/:sessionId","type":1,"val":"id","end":""},{"old":"/directory/:id/sessions/:sessionId","type":0,"val":"sessions","end":""},{"old":"/directory/:id/sessions/:sessionId","type":1,"val":"sessionId","end":""}],
     types: placeholder as Registry['directory.sessions.revoke']['types'],
   },
-  'apps.index': {
+  'developer.apps.index': {
     methods: ["GET","HEAD"],
-    pattern: '/apps',
-    tokens: [{"old":"/apps","type":0,"val":"apps","end":""}],
-    types: placeholder as Registry['apps.index']['types'],
+    pattern: '/developer/apps',
+    tokens: [{"old":"/developer/apps","type":0,"val":"developer","end":""},{"old":"/developer/apps","type":0,"val":"apps","end":""}],
+    types: placeholder as Registry['developer.apps.index']['types'],
   },
-  'apps.store': {
+  'developer.apps.store': {
     methods: ["POST"],
-    pattern: '/apps',
-    tokens: [{"old":"/apps","type":0,"val":"apps","end":""}],
-    types: placeholder as Registry['apps.store']['types'],
+    pattern: '/developer/apps',
+    tokens: [{"old":"/developer/apps","type":0,"val":"developer","end":""},{"old":"/developer/apps","type":0,"val":"apps","end":""}],
+    types: placeholder as Registry['developer.apps.store']['types'],
   },
-  'apps.update': {
+  'developer.apps.update': {
     methods: ["PATCH"],
-    pattern: '/apps/:id',
-    tokens: [{"old":"/apps/:id","type":0,"val":"apps","end":""},{"old":"/apps/:id","type":1,"val":"id","end":""}],
-    types: placeholder as Registry['apps.update']['types'],
+    pattern: '/developer/apps/:id',
+    tokens: [{"old":"/developer/apps/:id","type":0,"val":"developer","end":""},{"old":"/developer/apps/:id","type":0,"val":"apps","end":""},{"old":"/developer/apps/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['developer.apps.update']['types'],
   },
-  'apps.destroy': {
+  'developer.apps.destroy': {
     methods: ["DELETE"],
-    pattern: '/apps/:id',
-    tokens: [{"old":"/apps/:id","type":0,"val":"apps","end":""},{"old":"/apps/:id","type":1,"val":"id","end":""}],
-    types: placeholder as Registry['apps.destroy']['types'],
+    pattern: '/developer/apps/:id',
+    tokens: [{"old":"/developer/apps/:id","type":0,"val":"developer","end":""},{"old":"/developer/apps/:id","type":0,"val":"apps","end":""},{"old":"/developer/apps/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['developer.apps.destroy']['types'],
   },
-  'apps.rotateSecret': {
+  'developer.apps.rotateSecret': {
     methods: ["POST"],
-    pattern: '/apps/:id/rotate-secret',
-    tokens: [{"old":"/apps/:id/rotate-secret","type":0,"val":"apps","end":""},{"old":"/apps/:id/rotate-secret","type":1,"val":"id","end":""},{"old":"/apps/:id/rotate-secret","type":0,"val":"rotate-secret","end":""}],
-    types: placeholder as Registry['apps.rotateSecret']['types'],
+    pattern: '/developer/apps/:id/rotate-secret',
+    tokens: [{"old":"/developer/apps/:id/rotate-secret","type":0,"val":"developer","end":""},{"old":"/developer/apps/:id/rotate-secret","type":0,"val":"apps","end":""},{"old":"/developer/apps/:id/rotate-secret","type":1,"val":"id","end":""},{"old":"/developer/apps/:id/rotate-secret","type":0,"val":"rotate-secret","end":""}],
+    types: placeholder as Registry['developer.apps.rotateSecret']['types'],
   },
   'audit.export': {
     methods: ["GET","HEAD"],

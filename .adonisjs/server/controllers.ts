@@ -5,11 +5,12 @@
 
 export const controllers = {
   AccountSettings: () => import('#controllers/account_settings_controller'),
-  Apps: () => import('#controllers/apps_controller'),
+  AppLauncher: () => import('#controllers/app_launcher_controller'),
   AuditLogs: () => import('#controllers/audit_logs_controller'),
   AuthSettings: () => import('#controllers/auth_settings_controller'),
   Consent: () => import('#controllers/consent_controller'),
   Dashboard: () => import('#controllers/dashboard_controller'),
+  DeveloperApps: () => import('#controllers/developer_apps_controller'),
   Directory: () => import('#controllers/directory_controller'),
   Oauth: () => import('#controllers/oauth_controller'),
   Password: () => import('#controllers/password_controller'),

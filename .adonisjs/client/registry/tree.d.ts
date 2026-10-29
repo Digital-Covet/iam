@@ -33,6 +33,9 @@ export interface ApiDefinition {
     disable: typeof routes['two_factor.disable']
   }
   dashboard: typeof routes['dashboard']
+  apps: {
+    index: typeof routes['apps.index']
+  }
   directory: {
     index: typeof routes['directory.index']
     export: typeof routes['directory.export']
@@ -51,12 +54,14 @@ export interface ApiDefinition {
       reset: typeof routes['directory.twoFactor.reset']
     }
   }
-  apps: {
-    index: typeof routes['apps.index']
-    store: typeof routes['apps.store']
-    update: typeof routes['apps.update']
-    destroy: typeof routes['apps.destroy']
-    rotateSecret: typeof routes['apps.rotateSecret']
+  developer: {
+    apps: {
+      index: typeof routes['developer.apps.index']
+      store: typeof routes['developer.apps.store']
+      update: typeof routes['developer.apps.update']
+      destroy: typeof routes['developer.apps.destroy']
+      rotateSecret: typeof routes['developer.apps.rotateSecret']
+    }
   }
   audit: {
     export: typeof routes['audit.export']

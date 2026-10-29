@@ -121,17 +121,19 @@ function UserSheetContent({ user, roles, viewerId, onClose }: Props) {
   }
 
   const isSelf = !!user && user.id === viewerId
-  const targetIsSuperadmin = user?.roleName === 'superadmin'
-  const canEditRole = can('users.update') && !isSelf && (isSuperadmin || !targetIsSuperadmin)
+  const targetRoleName = user?.roleName ?? ''
+  // Superadmin and developer hold sensitive grants; only a superadmin may touch them.
+  const targetIsPrivileged = ['superadmin', 'developer'].includes(targetRoleName)
+  const canEditRole = can('users.update') && !isSelf && (isSuperadmin || !targetIsPrivileged)
   const roleReason = !can('users.update')
     ? 'You do not have permission to change roles.'
     : isSelf
       ? 'You cannot change your own role.'
-      : !isSuperadmin && targetIsSuperadmin
-        ? 'Only superadmins can change a superadmin’s role.'
+      : !isSuperadmin && targetIsPrivileged
+        ? `Only superadmins can change a ${targetRoleName}’s role.`
         : null
 
-  const canEditSessions = can('sessions.revoke') && (isSuperadmin || !targetIsSuperadmin)
+  const canEditSessions = can('sessions.revoke') && (isSuperadmin || !targetIsPrivileged)
 
   function confirmCopy() {
     if (!user || !pending) return null
@@ -268,7 +270,7 @@ function UserSheetContent({ user, roles, viewerId, onClose }: Props) {
                         </Field>
                         {user.twoFactorEnabled &&
                           can('users.mfa.reset') &&
-                          (isSuperadmin || !targetIsSuperadmin) && (
+                          (isSuperadmin || !targetIsPrivileged) && (
                             <div className="py-2.5">
                               <button
                                 type="button"
@@ -356,7 +358,9 @@ function UserSheetContent({ user, roles, viewerId, onClose }: Props) {
                             ...roles.map((r) => ({
                               value: r.name,
                               label: r.name,
-                              disabled: !isSuperadmin && r.name.toLowerCase() === 'superadmin',
+                              disabled:
+                                !isSuperadmin &&
+                                ['superadmin', 'developer'].includes(r.name.toLowerCase()),
                             })),
                           ]}
                         />

@@ -23,6 +23,7 @@ export const navGroups: NavGroup[] = [
     label: 'Workspace',
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { label: 'Apps', href: '/apps', icon: AppWindow },
       { label: 'Directory', href: '/', icon: Users, requires: { all: ['users.read'] } },
     ],
   },
@@ -36,8 +37,8 @@ export const navGroups: NavGroup[] = [
         requires: { all: ['roles.read'] },
       },
       {
-        label: 'Applications',
-        href: '/apps',
+        label: 'App registry',
+        href: '/developer/apps',
         icon: AppWindow,
         requires: { all: ['apps.read', 'oauth.clients.read'] },
       },

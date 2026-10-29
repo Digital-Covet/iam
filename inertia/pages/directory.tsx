@@ -107,8 +107,8 @@ function RowMenu({
   onAction: (action: NonNullable<RowAction>) => void
 }) {
   const { can, isSuperadmin } = usePermissions()
-  // Only superadmins may touch a superadmin; the server enforces it as well.
-  const protectedTarget = user.roleName === 'superadmin' && !isSuperadmin
+  // Only superadmins may touch a privileged role; the server enforces it as well.
+  const protectedTarget = ['superadmin', 'developer'].includes(user.roleName) && !isSuperadmin
   const name = displayName(user)
 
   const items: {

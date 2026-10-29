@@ -2,9 +2,10 @@ import Role from '#models/role'
 import type { HttpContext } from '@adonisjs/core/http'
 
 /**
- * Permissions that stay superadmin-only by default. The seeder withholds them
- * from `admin`, and only a superadmin may grant them to another role in the
- * matrix. Everything else the console does is checked against role_permission.
+ * Sensitive permissions that a superadmin hands out deliberately. The seeder
+ * withholds them from `admin`, and only a superadmin may grant them to another
+ * role in the matrix. The seeded `developer` role is the exception: it owns the
+ * app/OAuth keys by design. Everything else is checked against role_permission.
  */
 export const SUPERADMIN_ONLY_KEYS = new Set([
   'roles.create',
@@ -15,6 +16,26 @@ export const SUPERADMIN_ONLY_KEYS = new Set([
   'oauth.clients.manage',
   'settings.password_policy.update',
   'settings.auth_methods.update',
+])
+
+/**
+ * Default grants for the `developer` role: ownership of the app registry and
+ * its OAuth clients, plus read-only visibility across the rest of the console.
+ * Shared with the backfill migration so both paths seed the same set.
+ */
+export const DEVELOPER_KEYS = new Set([
+  'apps.read',
+  'apps.create',
+  'apps.update',
+  'apps.delete',
+  'oauth.clients.read',
+  'oauth.clients.manage',
+  'entitlements.read',
+  'users.read',
+  'roles.read',
+  'audit.read',
+  'settings.password_policy.read',
+  'settings.auth_methods.read',
 ])
 
 /** What the signed-in user's role allows. Superadmin always has every key. */

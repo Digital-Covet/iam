@@ -23,6 +23,7 @@ export type ScannedRoutes = {
     'two_factor.storeVerify': { paramsTuple?: []; params?: {} }
     'dashboard': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
+    'apps.index': { paramsTuple?: []; params?: {} }
     'directory.index': { paramsTuple?: []; params?: {} }
     'directory.export': { paramsTuple?: []; params?: {} }
     'directory.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -34,11 +35,11 @@ export type ScannedRoutes = {
     'directory.entitlements': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'directory.sessions.revokeAll': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'directory.sessions.revoke': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'sessionId': ParamValue} }
-    'apps.index': { paramsTuple?: []; params?: {} }
-    'apps.store': { paramsTuple?: []; params?: {} }
-    'apps.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'apps.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'apps.rotateSecret': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'developer.apps.index': { paramsTuple?: []; params?: {} }
+    'developer.apps.store': { paramsTuple?: []; params?: {} }
+    'developer.apps.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'developer.apps.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'developer.apps.rotateSecret': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'audit.export': { paramsTuple?: []; params?: {} }
     'audit.index': { paramsTuple?: []; params?: {} }
     'audit.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -73,10 +74,11 @@ export type ScannedRoutes = {
     'password.show_forgot': { paramsTuple?: []; params?: {} }
     'two_factor.showVerify': { paramsTuple?: []; params?: {} }
     'dashboard': { paramsTuple?: []; params?: {} }
+    'apps.index': { paramsTuple?: []; params?: {} }
     'directory.index': { paramsTuple?: []; params?: {} }
     'directory.export': { paramsTuple?: []; params?: {} }
     'directory.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'apps.index': { paramsTuple?: []; params?: {} }
+    'developer.apps.index': { paramsTuple?: []; params?: {} }
     'audit.export': { paramsTuple?: []; params?: {} }
     'audit.index': { paramsTuple?: []; params?: {} }
     'audit.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -97,10 +99,11 @@ export type ScannedRoutes = {
     'password.show_forgot': { paramsTuple?: []; params?: {} }
     'two_factor.showVerify': { paramsTuple?: []; params?: {} }
     'dashboard': { paramsTuple?: []; params?: {} }
+    'apps.index': { paramsTuple?: []; params?: {} }
     'directory.index': { paramsTuple?: []; params?: {} }
     'directory.export': { paramsTuple?: []; params?: {} }
     'directory.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'apps.index': { paramsTuple?: []; params?: {} }
+    'developer.apps.index': { paramsTuple?: []; params?: {} }
     'audit.export': { paramsTuple?: []; params?: {} }
     'audit.index': { paramsTuple?: []; params?: {} }
     'audit.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -122,8 +125,8 @@ export type ScannedRoutes = {
     'session.destroy': { paramsTuple?: []; params?: {} }
     'directory.invite': { paramsTuple?: []; params?: {} }
     'directory.resendInvite': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'apps.store': { paramsTuple?: []; params?: {} }
-    'apps.rotateSecret': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'developer.apps.store': { paramsTuple?: []; params?: {} }
+    'developer.apps.rotateSecret': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.store': { paramsTuple?: []; params?: {} }
     'two_factor.storeSetup': { paramsTuple?: []; params?: {} }
     'two_factor.regenerate': { paramsTuple?: []; params?: {} }
@@ -135,7 +138,7 @@ export type ScannedRoutes = {
     'directory.role': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'directory.status': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'directory.entitlements': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'apps.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'developer.apps.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'roles.matrix': { paramsTuple?: []; params?: {} }
     'settings.policy': { paramsTuple?: []; params?: {} }
     'settings.method': { paramsTuple: [ParamValue]; params: {'key': ParamValue} }
@@ -147,7 +150,7 @@ export type ScannedRoutes = {
     'directory.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'directory.sessions.revokeAll': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'directory.sessions.revoke': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'sessionId': ParamValue} }
-    'apps.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'developer.apps.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'account.session': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'directory.twoFactor.reset': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
